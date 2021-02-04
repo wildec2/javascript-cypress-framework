@@ -280,7 +280,7 @@ electron-desktop-tests:
     environment:
       - CYPRESS_baseUrl=https://www.discoverireland.ie
     working_dir: /cypress-setup
-    command: "--headless --spec cypress/integration/desktop/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
+    command: "--headless --spec cypress/integration/desktop/*.js"
     volumes:
       - ./:/cypress-setup
       - /dev/shm:/dev/shm
@@ -290,7 +290,7 @@ electron-desktop-tests:
     environment:
       - CYPRESS_baseUrl=https://www.discoverireland.ie
     working_dir: /cypress-setup
-    command: "--config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
+    command: "--config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js"
     volumes:
       - ./:/cypress-setup
       - /dev/shm:/dev/shm
