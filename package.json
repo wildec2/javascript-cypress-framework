@@ -1,0 +1,21 @@
+{
+  "name": "cypress-setup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:open:mobile": "cypress open --config viewportWidth=375,viewportHeight=667,userAgent=iPhone",
+    "cy:run:desktop": "cypress run --headless --spec cypress/integration/desktop/*.js",
+    "cy:run:mobile": "cypress run --config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js",
+    "cy:run:chrome": "cypress run --browser chrome --headless",
+    "cy:run:firefox": "cypress run --browser firefox --headless",
+    "cy:run:edge": "cypress run --browser edge --headless"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^6.3.0"
+  }
+}

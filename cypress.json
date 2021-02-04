@@ -1,0 +1,14 @@
+{
+  "projectId": "3bwqu1",
+  "watchForFileChanges": false,
+  "baseUrl": "https://www.discoverireland.ie",
+  "env": {
+    "wild_atlantic_way_url": "/wild-atlantic-way",
+    "irelands_ancient_east_url": "/irelands-ancient-east",
+    "irelands_hidden_heartlands_url": "/irelands-hidden-heartlands"
+  },
+  "retries": {
+    "runMode": 2,
+    "openMode": 1
+  }
+}

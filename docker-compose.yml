@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  # some-app:
+  #   build: ../
+  #   image: cypress/someAppImageName
+  #   ports:
+  #     - "3000:3000"
+
+  electron-desktop-tests:
+    image: "cypress/included:6.3.0"
+    environment:
+      - CYPRESS_baseUrl=https://www.discoverireland.ie
+    working_dir: /cypress-setup
+    command: "--headless --spec cypress/integration/desktop/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
+    volumes:
+      - ./:/cypress-setup
+      - /dev/shm:/dev/shm
+
+  electron-mobile-tests:
+    image: "cypress/included:6.3.0"
+    environment:
+      - CYPRESS_baseUrl=https://www.discoverireland.ie
+    working_dir: /cypress-setup
+    command: "--config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
+    volumes:
+      - ./:/cypress-setup
+      - /dev/shm:/dev/shm

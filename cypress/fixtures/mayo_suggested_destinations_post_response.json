@@ -1,0 +1,28 @@
+{
+    "@odata.context":"https://fi-de-tourism-content-search.search.windows.net/indexes('destinations')/$metadata#docs(*)",
+    "@odata.count":45,
+    "value":[
+       {
+          "@search.score":0.4487005,
+          "DestinationCodename":"great_western_greenway_6daa7cf",
+          "DestinationName":"Great Western Greenway",
+          "DestinationNameGA":"",
+          "DestinationType":"Route",
+          "DestinationUrl":"great-western-greenway",
+          "PriorityLevel":{
+             "PriorityLevelCodename":"one",
+             "PriorityLevelName":"Priority 1",
+             "PriorityLevelValue":1
+          },
+          "DefaultImage":null,
+          "DestinationParent":null,
+          "DestinationWebsiteAssets":[
+             {
+                "ImageCaption":"Ride along the edge of the majestic Clew Bay on the Gret Western Greenway.",
+                "ImageDescription":"Two people cycling along the Great Western Greenway, Mayo",
+                "ImageUrl":"https://assets-eu-01.kc-usercontent.com:443/aa24ba70-9a12-01ae-259b-7ef588a0b2ef/1ef23764-ea07-494c-bad5-9dc28f2a2233/header-great-western-greenway.jpg"
+             }
+          ]
+       }
+    ]
+ }
