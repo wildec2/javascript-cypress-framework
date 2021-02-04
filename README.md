@@ -18,6 +18,7 @@ Various Cypress testing techniques are outlined below as well as a docker and co
 1. The integration sub folder under cypress is where we write our tests.
 2. [mocha](https://mochajs.org/) is the test runner that comes built in with cypress and we must use it.
 3. The 'cy' object is the built in cypress object and is used to call all the cypress apis.
+4. Under integration we have created a desktop folder to holder our desktop specific tests and a mobile folder to hold our mobile specific test. This is because we need to set the user agent for mobile for sites which are rendered server side. The user agent must be set before cypress runs so the desktop and mobile tests cannot run together. See the below sections for more details.
 
 
 ## Accessing Elements
@@ -78,6 +79,7 @@ it.only('test name 2', () => {
 })
 ```
 3. We can use beforeEach(() => {}) to run commands that are common to each test.
+4. Additionally we group our mobile and desktop tests in seperate folders so we can set the user agent for mobile tests when we run Cypress.
 
 
 ## Running Tests from CLI
@@ -93,13 +95,16 @@ Add the following to package.json > scripts
 4. Additionally we've added the following to package.json to run further commands.
 ```
 "cy:open": "cypress open",
-"cy:open:mobile": "cypress open --config viewportWidth=375,viewportHeight=667",
-"cy:run": "cypress run",
+"cy:open:mobile": "cypress open --config viewportWidth=375,viewportHeight=667,userAgent=iPhone",
+"cy:run:desktop": "cypress run --headless --spec cypress/integration/desktop/*.js",
+"cy:run:mobile": "cypress run --config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js",
 "cy:run:chrome": "cypress run --browser chrome --headless",
 "cy:run:firefox": "cypress run --browser firefox --headless",
-"cy:run:edge": "cypress run --browser edge --headless",
-"cy:run:mobile": "cypress run --config viewportWidth=375,viewportHeight=667"
+"cy:run:edge": "cypress run --browser edge --headless"
 ```
+We specify 'viewportWidth=375,viewportHeight=667,userAgent=iPhone' to emulate a mobile device. Also we only want the mobile tests to run when cypress is configured for mobile so we specify the files in the specific folder to run with '--spec cypress/integration/mobile/*.js'. The same applies for desktop. '--browser' sets the browser to what we tell it.
+
+
 
 ## Page Objects
 1. If we have instance variables(state) we can use classes, else, we can just use a regular set of module functions to represent our page as cypress takes care of all the browser initialization.
@@ -186,7 +191,8 @@ And then you can run from the command line with 'npm run cy:run:firefox'.
 ```
 "cy:run:mobile": "cypress run --config viewportWidth=375,viewportHeight=667"
 ```
-This option won't work well for apps that are rendered server side. Look into alternatives like using chrome device mode and setting the the user agent. 
+This option won't work well for apps that are rendered server side based on the client user agent. That's why we set 'userAgent=iPhone'. This also means we need to separate our desktop and mobile tests and run them separately. 
+
 
 ## Test Retries
 1. We can set failing tests to fun again any number of time in both run and open mode by adding the following to the cypress.json configuration file.
@@ -267,18 +273,29 @@ some-app:
        - "3000:3000"
 ```
 Here we define a docker for our application under test container and expose it on the specified port.
-3. We also create a docker container for Cypress.
+3. We also create a docker container for Cypress and running our tests. Each is configured for the particular conditions we want to test our app under.
 ```
-electron-tests:
+electron-desktop-tests:
     image: "cypress/included:6.3.0"
     environment:
       - CYPRESS_baseUrl=https://www.discoverireland.ie
     working_dir: /cypress-setup
+    command: "--headless --spec cypress/integration/desktop/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
+    volumes:
+      - ./:/cypress-setup
+      - /dev/shm:/dev/shm
+
+  electron-mobile-tests:
+    image: "cypress/included:6.3.0"
+    environment:
+      - CYPRESS_baseUrl=https://www.discoverireland.ie
+    working_dir: /cypress-setup
+    command: "--config viewportWidth=375,viewportHeight=667,userAgent=iPhone --headless --spec cypress/integration/mobile/*.js --record --key 6749cc00-d205-4f62-a701-208e872a6516"
     volumes:
       - ./:/cypress-setup
       - /dev/shm:/dev/shm
 ```
-The 'cypress/included' image comes with the default electron browser, chrome and fire fox built in. Using this image allows ensures cypress tests are ran as soon as the container starts up.
+The 'cypress/included' image comes with the default electron browser, Chrome and Firefox are built in. Using this image allows ensures cypress tests are ran as soon as the container starts up.
 4. If running the tests against another service defined in our docker-compose file we would add a dependency
 ```
 depends_on:
@@ -298,8 +315,7 @@ command: "--browser chrome --config viewportWidth=375,viewportHeight=667"
 ```
 command: "--browser chrome --config viewportWidth=375,viewportHeight=667 --record --key XXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 ```
-9. Run 'docker-compose up --exit-code-from electron-tests' from the folder containing the compose file. 
-The '--exit-code-from' flag tells Docker Compose to use the Cypress container’s, in our case 'electron-tests', exit code as the exit code for the docker-compose command
+9. Run 'docker-compose run electron-desktop-tests' or 'docker-compose run electron-mobile-tests' from the folder containing the compose file. 
 
 10. Run 'docker-compose down' to stop and remove the created containers(app and cypress).
 
@@ -336,7 +352,7 @@ Run containers as defined in docker-compose.yml.
 ```
 stage ('Run Tests'){  
 	steps{
-		sh "docker-compose up --exit-code-from electron-tests"
+		sh "docker-compose run electron-mobile-tests"
 	}
 }
 ```
@@ -345,11 +361,13 @@ stage ('Run Tests'){
 post{
  	always{
  	    sh "docker-compose down"
-		//delete image created for application under test in docker-compose.yml "sh docker image rm autImageName"
+		//delete image created for application under test "sh docker image rm cypress/someAppImageName
  	}
 }
 ```
 This stops and deletes the created containers. You'll probaly want to add a hook to notify the source control management tool you are using also. Jenkins allows you to specify an action to notify bitbucket or github or whichever one you want.
 
 If you have added '--record --key' to your container that runs the tests as highlighted above then the results will be stored in your dashboard including all the details you need to debug failures and videos(if you have chosen not to disable).
+
+At the moment we are running our tests for mobile and desktop sequentially. Need to look into how we could run these in parrallel.
 
